@@ -47,7 +47,7 @@ public class DualPic : DefaultIOPortHandler {
             MaskAllInterrupts();
         }
     }
-    
+
     /// <summary>
     /// Initializes the PICs with default initialization commands.
     /// </summary>
