@@ -7,7 +7,7 @@ namespace Spice86.Core.Emulator.Memory.Indexer;
 /// This layout is common for various instructions / interrupt table / ...
 /// Does not instantiates an object, returns a ValueTuple.
 /// </summary>
-public class SegmentedAddressValueIndexer : Indexer<(ushort Segment, ushort Offset)> {
+public class SegmentedAddressValueIndexer : MemoryIndexer<(ushort Segment, ushort Offset)> {
     private readonly UInt16Indexer _uInt16Indexer;
 
     public SegmentedAddressValueIndexer(UInt16Indexer uInt16Indexer) {

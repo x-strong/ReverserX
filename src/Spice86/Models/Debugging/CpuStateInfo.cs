@@ -60,7 +60,7 @@ public partial class StateInfo : ObservableObject {
     [ObservableProperty] private bool _overflowFlag;
     [ObservableProperty] private bool _parityFlag;
 
-    [ObservableProperty] private int? _segmentOverrideIndex;
+    [ObservableProperty] private uint? _segmentOverrideIndex;
 
     // Source Index
     [ObservableProperty] private ushort _SI;
