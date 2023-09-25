@@ -5,7 +5,9 @@ using Spice86.Core.Emulator.Function;
 
 namespace Spice86.Core.Emulator.VM;
 
+using Spice86.Core.Emulator.CPU.Registers;
 using Spice86.Core.Emulator.Gdb;
+using Spice86.Core.Emulator.Memory.ReaderWriter;
 using Spice86.Shared.Interfaces;
 
 using System.Diagnostics;
@@ -94,8 +96,60 @@ public class EmulationLoop {
         _dmaController.StartDmaThread();
         RunLoop();
     }
+    public void Regz()
+    {
+        State state = new();
+
+        UInt32RegistersIndexer indexer = state.GeneralRegisters.UInt32;
+        IUIntReaderWriter interfacez = indexer._uIntArrayReaderWriter;
+        UIntArrayReaderWriter instance = (UIntArrayReaderWriter)interfacez;
+        uint[] array = instance.Array;
+        RunWithStopWatch(() => BenchIndexer(indexer), "indexer");
+        RunWithStopWatch(() => BenchInterface(interfacez), "interface");
+        RunWithStopWatch(() => BenchInstance(instance), "instance");
+        RunWithStopWatch(() => BenchArray(array), "array");
+        Console.WriteLine();
+    }
+
+    private void RunWithStopWatch(Action action, string name) {
+        Stopwatch stopwatchEax = new();
+        stopwatchEax.Start();
+        action.Invoke();
+        stopwatchEax.Stop();
+        Console.WriteLine($"{name} {stopwatchEax.ElapsedMilliseconds}ms");
+    }
+
+    private void BenchIndexer(UInt32RegistersIndexer indexer) {
+        for (int i = 0; i < int.MaxValue; i++) {
+            indexer[0] = 0;
+        }
+    }
+    private void BenchInterface(IUIntReaderWriter interfacez) {
+        for (int i = 0; i < int.MaxValue; i++) {
+            interfacez[0] = 0;
+        }
+    }
     
+    private void BenchInstance(ArrayReaderWriter<uint> instance) {
+        for (int i = 0; i < int.MaxValue; i++) {
+            instance[0] = 0;
+        }
+    }
+    
+    private void BenchArray(uint[] array) {
+        for (int i = 0; i < int.MaxValue; i++) {
+            array[0] = 0;
+        }
+    }
     private void RunLoop() {
+        Regz();
+        Regz();
+        Regz();
+        Regz();
+        Regz();
+        Regz();
+        Regz();
+        Environment.Exit(1);
         _stopwatch.Start();
         while (_cpuState.IsRunning) {
             PauseIfAskedTo();
