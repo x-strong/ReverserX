@@ -493,6 +493,9 @@ public class DosInt21Handler : InterruptHandler {
         }
         _state.ES = segment;
         _state.BX = offset;
+        if(segment == 0 && offset == 0 && _loggerService.IsEnabled(LogEventLevel.Warning)) {
+            _loggerService.Warning("Undefined interrupt vector {VectorNumber}, program may very well crash !", vectorNumber);
+        }
     }
 
     /// <summary>
