@@ -581,16 +581,18 @@ public class DosInt21Handler : InterruptHandler {
         SetStateFromDosFileOperationResult(calledFromVm, dosFileOperationResult);
     }
 
+    public void PrintString(string str) {
+        _vgaFunctionality.WriteString(str);
+        if (_loggerService.IsEnabled(LogEventLevel.Verbose)) {
+            _loggerService.Verbose("PRINT STRING: {String}", str);
+        }
+    }
+
     public void PrintString() {
         ushort segment = _state.DS;
         ushort offset = _state.DX;
         string str = GetDosString(_memory, segment, offset, '$');
-
-        _vgaFunctionality.WriteString(str);
-        
-        if (_loggerService.IsEnabled(LogEventLevel.Verbose)) {
-            _loggerService.Verbose("PRINT STRING: {String}", str);
-        }
+        PrintString(str);
     }
 
     public void QuitWithExitCode() {
