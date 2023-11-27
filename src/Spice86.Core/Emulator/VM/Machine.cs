@@ -211,6 +211,11 @@ public sealed class Machine : IDisposable, IDebuggableComponent {
     public BiosInt5PrintScreenHandler BiosInt5PrintScreenHandler { get; }
 
     /// <summary>
+    /// The BIOS System Timer tick handler.
+    /// </summary>
+    public SystemBiosInt1CHandler SystemBiosInt1CHandler { get; }
+
+    /// <summary>
     /// Initializes a new instance
     /// </summary>
     public Machine(IGui? gui, ILoggerService loggerService, CounterConfigurator counterConfigurator, ExecutionFlowRecorder executionFlowRecorder, Configuration configuration, bool recordData) {
@@ -298,6 +303,7 @@ public sealed class Machine : IDisposable, IDebuggableComponent {
         DosArithmeticOverflowHandler = new DosArithmeticOverflowHandler(Memory, Cpu, loggerService);
         DosArrayBoundsErrorHandler = new DosArrayBoundsErrorHandler(Memory, Cpu, loggerService);
         BiosInt5PrintScreenHandler = new BiosInt5PrintScreenHandler(Memory, Cpu, loggerService);
+        SystemBiosInt1CHandler = new SystemBiosInt1CHandler(Memory, Cpu, loggerService);
 
         if (configuration.InitializeDOS is not false) {
             // Register the interrupt handlers
@@ -310,6 +316,7 @@ public sealed class Machine : IDisposable, IDebuggableComponent {
             RegisterInterruptHandler(BiosInt5PrintScreenHandler);
             RegisterInterruptHandler(BiosEquipmentDeterminationInt11Handler);
             RegisterInterruptHandler(SystemBiosInt15Handler);
+            RegisterInterruptHandler(SystemBiosInt1CHandler);
             RegisterInterruptHandler(KeyboardInt16Handler);
             RegisterInterruptHandler(SystemClockInt1AHandler);
             RegisterInterruptHandler(Dos.DosInt20Handler);
