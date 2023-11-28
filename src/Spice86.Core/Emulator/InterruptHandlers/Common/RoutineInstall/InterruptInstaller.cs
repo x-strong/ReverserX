@@ -5,6 +5,8 @@ using Spice86.Core.Emulator.Function;
 using Spice86.Core.Emulator.InterruptHandlers.Common.MemoryWriter;
 using Spice86.Shared.Emulator.Memory;
 
+using System.Runtime.CompilerServices;
+
 /// <summary>
 /// Handles installing interrupts in the machine:
 ///  - Writes their emulated ASM handlers in Emulated Memory BUS
@@ -14,6 +16,12 @@ using Spice86.Shared.Emulator.Memory;
 public class InterruptInstaller : AssemblyRoutineInstaller {
     private readonly InterruptVectorTable _interruptVectorTable;
 
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
+    /// <param name="interruptVectorTable">The interrupt vector table.</param>
+    /// <param name="memoryAsmWriter">The class responsible for writing assembly code supporting interrupts callbacks in memory.</param>
+    /// <param name="functionHandler">The CPU Function Handler.</param>
     public InterruptInstaller(InterruptVectorTable interruptVectorTable, MemoryAsmWriter memoryAsmWriter, FunctionHandler functionHandler) : base(memoryAsmWriter, functionHandler) {
         _interruptVectorTable = interruptVectorTable;
     }
@@ -22,11 +30,12 @@ public class InterruptInstaller : AssemblyRoutineInstaller {
     /// Writes ASM code of the given handler in RAM.
     /// Registers it in the vector table and register its name in the function handler as well.
     /// </summary>
-    /// <param name="interruptHandler"></param>
+    /// <param name="interruptHandler">The class responsible for handling the interrupt vector.</param>
     /// <returns>Address of the handler ASM code</returns>
     public SegmentedAddress InstallInterruptHandler(IInterruptHandler interruptHandler) {
+        string className = interruptHandler.GetType().Name;
         SegmentedAddress handlerAddress = InstallAssemblyRoutine(interruptHandler,
-            $"provided_interrupt_handler_{interruptHandler.VectorNumber}");
+            $"{className}_provided_interrupt_handler_{interruptHandler.VectorNumber}");
 
         // Define ASM in vector table
         _interruptVectorTable[interruptHandler.VectorNumber] = new(handlerAddress.Segment, handlerAddress.Offset);
