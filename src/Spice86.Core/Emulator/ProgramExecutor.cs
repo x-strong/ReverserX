@@ -2,25 +2,24 @@
 
 using Function.Dump;
 
+using Spice86.Core.CLI;
 using Spice86.Core.Emulator.CPU;
+using Spice86.Core.Emulator.Debugger;
+using Spice86.Core.Emulator.Devices.Timer;
 using Spice86.Core.Emulator.Function;
 using Spice86.Core.Emulator.Gdb;
 using Spice86.Core.Emulator.LoadableFile;
-using Spice86.Core.Emulator.VM;
-using Spice86.Core.Emulator.Devices.Timer;
 using Spice86.Core.Emulator.LoadableFile.Bios;
 using Spice86.Core.Emulator.LoadableFile.Dos.Com;
 using Spice86.Core.Emulator.LoadableFile.Dos.Exe;
-using Spice86.Shared.Interfaces;
-
-using System.Security.Cryptography;
-using System.Diagnostics;
-
-using Spice86.Core.CLI;
-using Spice86.Core.Emulator.Debugger;
+using Spice86.Core.Emulator.VM;
 using Spice86.Shared.Emulator.Errors;
 using Spice86.Shared.Emulator.Memory;
+using Spice86.Shared.Interfaces;
 using Spice86.Shared.Utils;
+
+using System.Diagnostics;
+using System.Security.Cryptography;
 
 /// <summary>
 /// Loads and executes a program following the given configuration in the emulator.<br/>
@@ -84,7 +83,11 @@ public sealed class ProgramExecutor : IProgramExecutor {
             .DumpAll(Machine.Cpu.ExecutionFlowRecorder, Machine.Cpu.FunctionHandler);
     }
 
-    public bool IsPaused { get => _emulationLoop.IsPaused; set => _emulationLoop.IsPaused = value; }
+    /// <inheritdoc/>
+    public bool IsPaused {
+        get => _emulationLoop.IsPaused;
+        set => Machine.IsPaused = _emulationLoop.IsPaused = value;
+    }
 
     /// <inheritdoc />
     public void Dispose() {

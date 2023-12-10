@@ -5,6 +5,8 @@ using Spice86.Core.Emulator.Function;
 
 namespace Spice86.Core.Emulator.VM;
 
+using Serilog.Events;
+
 using Spice86.Core.Emulator.Gdb;
 using Spice86.Shared.Interfaces;
 
@@ -38,6 +40,7 @@ public class EmulationLoop {
     /// <summary>
     /// Initializes a new instance.
     /// </summary>
+    /// <param name="loggerService">The logger service implementation.</param>
     /// <param name="cpu">The emulated CPU, so the emulation loop can call ExecuteNextInstruction().</param>
     /// <param name="cpuState">The emulated CPU State, so that we know when to stop.</param>
     /// <param name="timer">The timer device, so the emulation loop can call Tick()</param>
@@ -110,14 +113,14 @@ public class EmulationLoop {
     }
 
     private void OutputPerfStats() {
-        if (_loggerService.IsEnabled(Serilog.Events.LogEventLevel.Warning)) {
+        if (_loggerService.IsEnabled(LogEventLevel.Warning)) {
             long elapsedTimeMilliSeconds = _stopwatch.ElapsedMilliseconds;
             long cycles = _cpuState.Cycles;
             long cyclesPerSeconds = 0;
             if (elapsedTimeMilliSeconds > 0) {
                 cyclesPerSeconds = (_cpuState.Cycles * 1000) / elapsedTimeMilliSeconds;
             }
-            _loggerService.Warning("Executed {cycles} instructions in {elapsedTimeMilliSeconds}ms. {cyclesPerSeconds} Instructions per seconds on average over run.", cycles, elapsedTimeMilliSeconds, cyclesPerSeconds);
+            _loggerService.Warning("Executed {Cycles} instructions in {ElapsedTimeMilliSeconds}ms. {CyclesPerSeconds} Instructions per seconds on average over run.", cycles, elapsedTimeMilliSeconds, cyclesPerSeconds);
         }
     }
     
