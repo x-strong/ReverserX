@@ -1,7 +1,7 @@
 namespace Spice86.Core.Emulator;
 
 using Spice86.Core.Emulator.Debugger;
-using Spice86.Core.Emulator.Pause;
+using Spice86.Core.Emulator.VM.Pause;
 
 public interface IProgramExecutor : IDisposable, IPauseable, IDebuggableComponent {
     void Run();
