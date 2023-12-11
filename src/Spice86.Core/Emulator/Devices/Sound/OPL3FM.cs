@@ -4,7 +4,6 @@ using Spice86.Core.Backend.Audio;
 using Spice86.Core.Emulator.CPU;
 using Spice86.Core.Emulator.Devices.Sound.Ymf262Emu;
 using Spice86.Core.Emulator.IOPorts;
-using Spice86.Core.Emulator.Pause;
 using Spice86.Core.Emulator.Sound;
 using Spice86.Core.Emulator.VM.Pause;
 using Spice86.Shared.Interfaces;
@@ -146,7 +145,7 @@ public sealed class OPL3FM : DefaultIOPortHandler, IPauseable, IDisposable {
         Span<float> playBuffer = stackalloc float[length];
         FillBuffer(buffer, playBuffer, expandToStereo);
         while (!_endThread) {
-            ThreadPause.SleepWhilePaused(ref _isPaused);
+            ThreadPause.SleepWhilePaused(this);
             _audioPlayer.WriteFullBuffer(playBuffer);
             FillBuffer(buffer, playBuffer, expandToStereo);
         }
