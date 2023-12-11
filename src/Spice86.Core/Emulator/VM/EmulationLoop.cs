@@ -17,7 +17,7 @@ using Spice86.Shared.Interfaces;
 /// Also, calls the DMA Controller once in order to start the DMA thread loop for DMA transfers. <br/>
 /// On Pause, triggers a GDB breakpoint.
 /// </summary>
-public class EmulationLoop : Pauseable {
+public class EmulationLoop : IPauseable {
     private readonly ILoggerService _loggerService;
     private readonly Cpu _cpu;
     private readonly State _cpuState;
@@ -31,6 +31,7 @@ public class EmulationLoop : Pauseable {
     /// Whether we check for breakpoints in the emulation loop.
     /// </summary>
     private readonly bool _listensToBreakpoints;
+    private bool _isPaused;
 
     /// <summary>
     /// Initializes a new instance.
@@ -55,7 +56,10 @@ public class EmulationLoop : Pauseable {
         _gdbCommandHandler = gdbCommandHandler;
         _stopwatch = new();
     }
-    
+
+    /// <inheritdoc />
+    public bool IsPaused { get => _isPaused; set => _isPaused = value; }
+
     /// <summary>
     /// Starts and waits for the end of the emulation loop.
     /// </summary>
@@ -127,14 +131,14 @@ public class EmulationLoop : Pauseable {
         _gdbCommandHandler.Step();
         return true;
     }
-    
+
     private void PauseIfAskedTo() {
         if (!IsPaused) {
             return;
         }
 
         if (!GenerateUnconditionalGdbBreakpoint()) {
-            SleepWhilePaused();
+            ThreadPause.SleepWhilePaused(ref _isPaused);
         }
     }
 }
