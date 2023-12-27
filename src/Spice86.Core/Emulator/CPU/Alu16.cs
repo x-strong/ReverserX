@@ -2,6 +2,8 @@
 
 using Spice86.Core.Emulator.CPU.Exceptions;
 
+using System.Runtime.Intrinsics.X86;
+
 public class Alu16 : Alu<ushort, short, uint, int>  {
     private const ushort BeforeMsbMask = 0x4000;
 
@@ -153,7 +155,7 @@ public class Alu16 : Alu<ushort, short, uint, int>  {
         return res;
     }
     
-    public override ushort Sar(ushort value, int count) {
+    public override ushort Sar(ushort value, byte count) {
         count &= ShiftCountMask;
         if (count == 0) {
             return value;
@@ -202,7 +204,7 @@ public class Alu16 : Alu<ushort, short, uint, int>  {
         return res;
     }
     
-    public override ushort Shr(ushort value, int count) {
+    public override ushort Shr(ushort value, byte count) {
         count &= ShiftCountMask;
         if (count == 0) {
             return value;

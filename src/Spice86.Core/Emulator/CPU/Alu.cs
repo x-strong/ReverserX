@@ -101,13 +101,13 @@ public abstract class Alu<TUnsigned, TSigned, TUnsignedUpper, TSignedUpper>
 
     public abstract TUnsigned Ror(TUnsigned value, int count);
 
-    public abstract TUnsigned Sar(TUnsigned value, int count);
+    public abstract TUnsigned Sar(TUnsigned value, byte count);
 
     public abstract TUnsigned Shl(TUnsigned value, int count);
 
     public abstract TUnsigned Shld(TUnsigned destination, TUnsigned source, byte count);
 
-    public abstract TUnsigned Shr(TUnsigned value, int count);
+    public abstract TUnsigned Shr(TUnsigned value, byte count);
 
     protected static uint BorrowBitsSub(uint value1, uint value2, uint dst) {
         return value1 ^ value2 ^ dst ^ ((value1 ^ dst) & (value1 ^ value2));
@@ -132,9 +132,14 @@ public abstract class Alu<TUnsigned, TSigned, TUnsignedUpper, TSignedUpper>
         return (value1 ^ dst) & (value1 ^ value2);
     }
 
-    protected void SetCarryFlagForRightShifts(uint value, int count) {
-        uint lastBit = value >> count - 1 & 0x1;
-        _state.CarryFlag = lastBit == 1;
+    protected void SetCarryFlagForRightShifts(uint value, byte count) {
+        if (System.Runtime.Intrinsics.X86.Bmi1.IsSupported) {
+            uint lastBit = System.Runtime.Intrinsics.X86.Bmi1.BitFieldExtract(value, (byte)(count - 1), 1);
+            _state.CarryFlag = lastBit == 1;
+        } else {
+            uint lastBit = value >> count - 1 & 0x1;
+            _state.CarryFlag = lastBit == 1;
+        }
     }
 
     protected void SetParityFlag(ulong value) {

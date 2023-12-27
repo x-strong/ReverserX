@@ -155,7 +155,7 @@ public class Alu8 : Alu<byte, sbyte, ushort, short> {
         return res;
     }
 
-    public override byte Sar(byte value, int count) {
+    public override byte Sar(byte value, byte count) {
         count &= ShiftCountMask;
         if (count == 0) {
             return value;
@@ -188,7 +188,7 @@ public class Alu8 : Alu<byte, sbyte, ushort, short> {
         throw new NotImplementedException("Shld is not available for 8bits operations");
     }
 
-    public override byte Shr(byte value, int count) {
+    public override byte Shr(byte value, byte count) {
         count &= ShiftCountMask;
         if (count == 0) {
             return value;

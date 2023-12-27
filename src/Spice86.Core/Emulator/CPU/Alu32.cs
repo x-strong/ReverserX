@@ -155,7 +155,7 @@ public class Alu32 : Alu<uint, int, ulong, long>  {
         return res;
     }
     
-    public override uint Sar(uint value, int count) {
+    public override uint Sar(uint value, byte count) {
         count &= ShiftCountMask;
         if (count == 0) {
             return value;
@@ -199,7 +199,7 @@ public class Alu32 : Alu<uint, int, ulong, long>  {
         return res;
     }
     
-    public override uint Shr(uint value, int count) {
+    public override uint Shr(uint value, byte count) {
         count &= ShiftCountMask;
         if (count == 0) {
             return value;
