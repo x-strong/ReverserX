@@ -2,8 +2,6 @@
 
 using Spice86.Core.Emulator.CPU.Exceptions;
 
-using System.Runtime.Intrinsics.X86;
-
 public class Alu32 : Alu<uint, int, ulong, long>  {
     
     private const uint BeforeMsbMask = 0x40000000;
@@ -94,13 +92,7 @@ public class Alu32 : Alu<uint, int, ulong, long>  {
             return value;
         }
 
-        uint carry;
-        if (Bmi1.IsSupported) {
-            carry = Bmi1.BitFieldExtract(value, (byte)(32 - count), 1);
-        } else {
-            carry = value >> 32 - count & 0x1;
-        }
-
+        uint carry = value >> 32 - count & 0x1;
         uint res = value << count;
         int mask = (1 << count - 1) - 1;
         res = (uint)(res | (value >> 33 - count & mask));
@@ -114,21 +106,15 @@ public class Alu32 : Alu<uint, int, ulong, long>  {
         return res;
     }
     
-    public override uint Rcr(uint value, byte count) {
-        count = (byte)((count & ShiftCountMask) % 33);
+    public override uint Rcr(uint value, int count) {
+        count = (count & ShiftCountMask) % 33;
         if (count == 0) {
             return value;
         }
 
-        uint carry;
+        uint carry = value >> count - 1 & 0x1;
         int mask = (1 << 32 - count) - 1;
-        if (Bmi1.IsSupported) {
-            carry = Bmi1.BitFieldExtract(value, (byte)(count - 1), 1);
-        } else {
-            carry = value >> count - 1 & 0x1;
-        }
-
-        uint res = (uint)(value >> count & mask);
+        uint res = (uint) (value >> count & mask);
         res |= value << 33 - count;
         if (_state.CarryFlag) {
             res = (ushort)(res | 1 << 32 - count);
@@ -145,13 +131,7 @@ public class Alu32 : Alu<uint, int, ulong, long>  {
             return value;
         }
 
-        uint carry;
-        if (Bmi1.IsSupported) {
-            carry = Bmi1.BitFieldExtract(value, (byte)(32 - count), 1);
-        } else {
-            carry = value >> 32 - count & 0x1;
-        }
-
+        uint carry = value >> 32 - count & 0x1;
         uint res = value << count;
         res |= value >> 32 - count;
         _state.CarryFlag = carry != 0;
@@ -160,20 +140,14 @@ public class Alu32 : Alu<uint, int, ulong, long>  {
         return res;
     }
     
-    public override uint Ror(uint value, byte count) {
-        count = (byte)((count & ShiftCountMask) % 16);
+    public override uint Ror(uint value, int count) {
+        count = (count & ShiftCountMask) % 16;
         if (count == 0) {
             return value;
         }
 
-        uint carry;
+        uint carry = value >> count - 1 & 0x1;
         int mask = (1 << 32 - count) - 1;
-        if (Bmi1.IsSupported) {
-            carry = Bmi1.BitFieldExtract(value, (byte)(count - 1), 1);
-        } else {
-            carry = value >> count - 1 & 0x1;
-        }
-
         uint res = (uint)(value >> count & mask);
         res |= value << 32 - count;
         _state.CarryFlag = carry != 0;
