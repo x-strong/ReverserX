@@ -8,6 +8,7 @@ using Spice86.Core.Emulator.VM.Breakpoint;
 using Spice86.Core.Emulator.Memory;
 using Spice86.Shared.Emulator.Memory;
 using Spice86.Shared.Utils;
+using System.Net.NetworkInformation;
 
 
 /// <summary>
@@ -184,20 +185,29 @@ public class ExecutionFlowRecorder {
         machineBreakpoints.ToggleBreakPoint(breakPoint, true);
     }
 
-    private AddressBreakPoint GenerateBreakPoint(IMemory memory, State state, uint physicalAddress) {
-        AddressBreakPoint breakPoint = new(BreakPointType.WRITE, physicalAddress, _ => {
-            if (!IsRegisterExecutableCodeModificationEnabled) {
-                return;
-            }
+    private readonly record struct ExecutionFlowRecorderBreakpointAction {
+        public ExecutionFlowRecorderBreakpointAction(IMemory memory, State state, ExecutionFlowRecorder executionFlowRecorder, uint physicalAddress) {
+            Action = _ => {
+                if (!executionFlowRecorder.IsRegisterExecutableCodeModificationEnabled) {
+                    return;
+                }
 
-            byte oldValue = memory.UInt8[physicalAddress];
-            byte newValue = memory.CurrentlyWritingByte;
-            if (oldValue != newValue) {
-                RegisterExecutableByteModification(
-                    new SegmentedAddress(state.CS, state.IP), physicalAddress, oldValue, newValue);
-            }
-        }, false);
-        return breakPoint;
+                byte oldValue = memory.UInt8[physicalAddress];
+                byte newValue = memory.CurrentlyWritingByte;
+                if (oldValue != newValue) {
+                    executionFlowRecorder.RegisterExecutableByteModification(
+                        new SegmentedAddress(state.CS, state.IP), physicalAddress, oldValue, newValue);
+                }
+            };
+        }
+        public Action<BreakPoint> Action { get; }
+    }
+
+    private ExecutionFlowRecorderBreakpointAction? _executionFlowRecorderBreakpointAction;
+
+    private AddressBreakPoint GenerateBreakPoint(IMemory memory, State state, uint physicalAddress) {
+        _executionFlowRecorderBreakpointAction ??= new(memory, state, this, physicalAddress);
+        return new(BreakPointType.WRITE, physicalAddress, _executionFlowRecorderBreakpointAction.Value.Action, false);
     }
 
     private void RegisterExecutableByteModification(SegmentedAddress instructionAddress, uint modifiedAddress, byte oldValue, byte newValue) {
