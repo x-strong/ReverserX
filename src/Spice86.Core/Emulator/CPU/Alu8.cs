@@ -2,6 +2,8 @@
 
 using Spice86.Core.Emulator.CPU.Exceptions;
 
+using System.Runtime.Intrinsics.X86;
+
 public class Alu8 : Alu<byte, sbyte, ushort, short> {
     private const byte BeforeMsbMask = 0x40;
 
@@ -92,7 +94,13 @@ public class Alu8 : Alu<byte, sbyte, ushort, short> {
             return value;
         }
 
-        int carry = value >> 8 - count & 0x1;
+        int carry;
+        if (Bmi1.IsSupported) {
+            carry = (int)Bmi1.BitFieldExtract(value, (byte)(8 - count), 1);
+        } else {
+            carry = value >> 8 - count & 0x1;
+        }
+
         byte res = (byte)(value << count);
         int mask = (1 << count - 1) - 1;
         res = (byte)(res | (value >> 9 - count & mask));
@@ -106,13 +114,19 @@ public class Alu8 : Alu<byte, sbyte, ushort, short> {
         return res;
     }
 
-    public override byte Rcr(byte value, int count) {
-        count = (count & ShiftCountMask) % 9;
+    public override byte Rcr(byte value, byte count) {
+        count = (byte)((count & ShiftCountMask) % 9);
         if (count == 0) {
             return value;
         }
 
-        int carry = value >> count - 1 & 0x1;
+        int carry;
+        if (Bmi1.IsSupported) {
+            carry = (int)Bmi1.BitFieldExtract(value, (byte)(count - 1), 1);
+        } else {
+            carry = value >> count - 1 & 0x1;
+        }
+
         int mask = (1 << 8 - count) - 1;
         byte res = (byte)(value >> count & mask);
         res = (byte)(res | value << 9 - count);
@@ -131,7 +145,13 @@ public class Alu8 : Alu<byte, sbyte, ushort, short> {
             return value;
         }
 
-        int carry = value >> 8 - count & 0x1;
+        int carry;
+        if (Bmi1.IsSupported) {
+            carry = (int)Bmi1.BitFieldExtract(value, (byte)(8 - count), 1);
+        } else {
+            carry = value >> 8 - count & 0x1;
+        }
+
         byte res = (byte)(value << count);
         res = (byte)(res | value >> 8 - count);
         _state.CarryFlag = carry != 0;
@@ -140,13 +160,19 @@ public class Alu8 : Alu<byte, sbyte, ushort, short> {
         return res;
     }
 
-    public override byte Ror(byte value, int count) {
-        count = (count & ShiftCountMask) % 8;
+    public override byte Ror(byte value, byte count) {
+        count = (byte)((count & ShiftCountMask) % 8);
         if (count == 0) {
             return value;
         }
 
-        int carry = value >> count - 1 & 0x1;
+        int carry;
+        if (Bmi1.IsSupported) {
+            carry = (int)Bmi1.BitFieldExtract(value, (byte)(count - 1), 1);
+        } else {
+            carry = value >> count - 1 & 0x1;
+        }
+
         int mask = (1 << 8 - count) - 1;
         byte res = (byte)(value >> count & mask);
         res = (byte)(res | value << 8 - count);

@@ -93,7 +93,13 @@ public class Alu16 : Alu<ushort, short, uint, int>  {
             return value;
         }
 
-        int carry = value >> 16 - count & 0x1;
+        int carry;
+        if (Bmi1.IsSupported) {
+            carry = (int)Bmi1.BitFieldExtract(value, (byte)(16 - count), 1);
+        } else {
+            carry = value >> 16 - count & 0x1;
+        }
+
         ushort res = (ushort)(value << count);
         int mask = (1 << count - 1) - 1;
         res = (ushort)(res | (value >> 17 - count & mask));
@@ -107,14 +113,20 @@ public class Alu16 : Alu<ushort, short, uint, int>  {
         return res;
     }
     
-    public override ushort Rcr(ushort value, int count) {
-        count = (count & ShiftCountMask) % 17;
+    public override ushort Rcr(ushort value, byte count) {
+        count = (byte)((count & ShiftCountMask) % 17);
         if (count == 0) {
             return value;
         }
 
-        int carry = value >> count - 1 & 0x1;
+        int carry;
         int mask = (1 << 16 - count) - 1;
+        if (Bmi1.IsSupported) {
+            carry = (int)Bmi1.BitFieldExtract(value, (byte)(count - 1), 1);
+        } else {
+            carry = value >> count - 1 & 0x1;
+        }
+
         ushort res = (ushort)(value >> count & mask);
         res = (ushort)(res | value << 17 - count);
         if (_state.CarryFlag) {
@@ -132,7 +144,13 @@ public class Alu16 : Alu<ushort, short, uint, int>  {
             return value;
         }
 
-        int carry = value >> 16 - count & 0x1;
+        int carry;
+        if (Bmi1.IsSupported) {
+            carry = (int)Bmi1.BitFieldExtract(value, (byte)(16 - count), 1);
+        } else {
+            carry = value >> 16 - count & 0x1;
+        }
+
         ushort res = (ushort)(value << count);
         res = (ushort)(res | value >> 16 - count);
         _state.CarryFlag = carry != 0;
@@ -140,14 +158,21 @@ public class Alu16 : Alu<ushort, short, uint, int>  {
         _state.OverflowFlag = msb ^ _state.CarryFlag;
         return res;
     }
-    public override ushort Ror(ushort value, int count) {
-        count = (count & ShiftCountMask) % 16;
+
+    public override ushort Ror(ushort value, byte count) {
+        count = (byte)((count & ShiftCountMask) % 16);
         if (count == 0) {
             return value;
         }
 
-        int carry = value >> count - 1 & 0x1;
+        int carry ;
         int mask = (1 << 16 - count) - 1;
+        if (Bmi1.IsSupported) {
+            carry = (int)Bmi1.BitFieldExtract(value, (byte)(count - 1), 1);
+        } else {
+            carry = value >> count - 1 & 0x1;
+        }
+
         ushort res = (ushort)(value >> count & mask);
         res = (ushort)(res | value << 16 - count);
         _state.CarryFlag = carry != 0;

@@ -95,11 +95,11 @@ public abstract class Alu<TUnsigned, TSigned, TUnsignedUpper, TSignedUpper>
 
     public abstract TUnsigned Rcl(TUnsigned value, byte count);
 
-    public abstract TUnsigned Rcr(TUnsigned value, int count);
+    public abstract TUnsigned Rcr(TUnsigned value, byte count);
 
     public abstract TUnsigned Rol(TUnsigned value, byte count);
 
-    public abstract TUnsigned Ror(TUnsigned value, int count);
+    public abstract TUnsigned Ror(TUnsigned value, byte count);
 
     public abstract TUnsigned Sar(TUnsigned value, byte count);
 
