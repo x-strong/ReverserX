@@ -43,6 +43,8 @@ public class Pic : IHardwareInterruptController {
     /// <param name="loggerService">The logger service implementation.</param>
     public Pic(ILoggerService loggerService) {
         _loggerService = loggerService;
+        _IsRequestedButNotYetInServiceFunc = IsRequestedButNotYetInService;
+        _isIrqInServiceFunc = IsIrqInService;
     }
 
     /// <summary>
@@ -197,6 +199,8 @@ public class Pic : IHardwareInterruptController {
         return true;
     }
 
+    private Func<byte, bool> _IsRequestedButNotYetInServiceFunc;
+
     /// <inheritdoc />
     public byte? ComputeVectorNumber() {
         if (EnabledInterruptRequests == 0) {
@@ -210,7 +214,7 @@ public class Pic : IHardwareInterruptController {
         }
 
         // search for higher priority Requests
-        byte? irq = FindHighestPriorityIrq((int)maxIrqToSearch, IsRequestedButNotYetInService);
+        byte? irq = FindHighestPriorityIrq((int)maxIrqToSearch, _IsRequestedButNotYetInServiceFunc);
         if (irq == null) {
             return null;
         }
@@ -253,8 +257,10 @@ public class Pic : IHardwareInterruptController {
         return (_inServiceRegister & GenerateIrqMask(irq)) != 0;
     }
 
+    private Func<byte, bool> _isIrqInServiceFunc;
+
     private byte? FindHighestIrqInService() {
-        return FindHighestPriorityIrq(HighestPriorityIrq, IsIrqInService);
+        return FindHighestPriorityIrq(HighestPriorityIrq, _isIrqInServiceFunc);
     }
 
     private void ClearHighestInServiceIrq() {
